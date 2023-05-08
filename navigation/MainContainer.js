@@ -1,4 +1,6 @@
 import * as React from "react";
+import { StyleSheet,View} from "react-native";
+
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -14,10 +16,12 @@ const chartName = "Rate Chart";
 const watchlistName = "Watchlist";
 
 const Tab = createBottomTabNavigator();
+console.disableYellowBox = true;
+
 
 function MainContainer() {
   return (
-    <NavigationContainer>
+    <NavigationContainer >
       <Tab.Navigator
         initialRouteName={exchangeName}
         screenOptions={({ route }) => ({
@@ -55,7 +59,7 @@ function MainContainer() {
         <Tab.Screen name={chartName} component={RateChart} />
         <Tab.Screen name={watchlistName} component={WatchList} />
       </Tab.Navigator>
-    </NavigationContainer>
+      </NavigationContainer>
   );
 }
 
