@@ -25,7 +25,6 @@ const CurrencyExchange = () => {
 
     const toggleBookmark = async () => {
     if (isBookmarked) {
-      setIsBookmarked(false);
       try {
         const storedCurrencies = await AsyncStorage.getItem('watchlist');
         const currenciesArray = JSON.parse(storedCurrencies);
@@ -33,20 +32,22 @@ const CurrencyExchange = () => {
           (currency) => currency.fromCurrency !== fromCurrency || currency.toCurrency !== toCurrency
         );
         await AsyncStorage.setItem('watchlist', JSON.stringify(updatedCurrencies));
+        setIsBookmarked(false);
       } catch (error) {
         console.log(error);
       }
     } else {
-      setIsBookmarked(true);
       try {
         const storedCurrencies = await AsyncStorage.getItem('watchlist');
         const currenciesArray = JSON.parse(storedCurrencies) || [];
         currenciesArray.push({ fromCurrency, toCurrency, exchangeRate });
         await AsyncStorage.setItem('watchlist', JSON.stringify(currenciesArray));
+        setIsBookmarked(false);
       } catch (error) {
         console.log(error);
       }
     }
+      loadWatchlist();
   };
 
   const loadWatchlist = async () => {

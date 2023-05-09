@@ -23,7 +23,7 @@ const WatchList = () => {
       }
     };
     getWatchlist();
-  }, []);
+  }, [watchlist]);
 
   const renderWatchlistItem = ({ item }) => {
     const { toCurrency, fromCurrency, exchangeRate } = item;
