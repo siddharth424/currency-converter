@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, Image, Button, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Image,
+  Button,
+  TouchableOpacity,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getData, storeData } from "./store";
 
 const CurrencyExchange = () => {
   const [fromCurrency, setFromCurrency] = useState("USD");
@@ -9,7 +17,7 @@ const CurrencyExchange = () => {
   const [exchangeRate, setExchangeRate] = useState(0);
   const [amount, setAmount] = useState(1);
   const [currencies, setCurrencies] = useState([]);
-  const [isFavorite, setIsFavorite] = useState(false);
+  // const [isFavorite, setIsFavorite] = useState(false);
 
   const convertCurrency = () => {
     let result = (amount * exchangeRate).toFixed(2);
@@ -40,6 +48,14 @@ const CurrencyExchange = () => {
         );
         const data = await response.json();
         setExchangeRate(data.conversion_rates[toCurrency]);
+          const history = (await getData("history")) || [];
+
+          // Append the current conversion data to the history array
+
+          history.push({ fromCurrency, toCurrency, exchangeRate });
+
+          // Save the updated history array back to AsyncStorage
+          storeData("history", history);
       } catch (error) {
         console.log(error);
       }
@@ -47,61 +63,59 @@ const CurrencyExchange = () => {
     fetchExchangeRate();
   }, [fromCurrency, toCurrency]);
 
-  useEffect(() => {
-    const getFavorites = async () => {
-      try {
-        const jsonValue = await AsyncStorage.getItem("@favorites");
-        const favorites = jsonValue != null ? JSON.parse(jsonValue) : [];
-        setIsFavorite(favorites.some((fav) => fav.from === fromCurrency && fav.to === toCurrency));
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getFavorites();
-  }, [fromCurrency, toCurrency]);
+  //   useEffect(() => {
+  //     const getFavorites = async () => {
+  //       try {
+  //         const jsonValue = await AsyncStorage.getItem("@favorites");
+  //         const favorites = jsonValue != null ? JSON.parse(jsonValue) : [];
+  //         setIsFavorite(favorites.some((fav) => fav.from === fromCurrency && fav.to === toCurrency));
+  //       } catch (error) {
+  //         console.log(error);
+  //       }
+  //     };
+  //     getFavorites();
+  //   }, [fromCurrency, toCurrency]);
 
-  const addToFavorites = async () => {
-    try {
-      const jsonValue = await AsyncStorage.getItem("@favorites");
-      const favorites = jsonValue != null ? JSON.parse(jsonValue) : [];
-      favorites.push({ from: fromCurrency, to: toCurrency });
-      await AsyncStorage.setItem("@favorites", JSON.stringify(favorites));
-      setIsFavorite(true);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  
-  const toggleFavorite = async () => {
-  try {
-    const favorites = await AsyncStorage.getItem('favorites');
-    let newFavorites;
-    if (favorites) {
-      // if favorites exist, parse the JSON and update it
-      const parsedFavorites = JSON.parse(favorites);
-      const fromToPair = `${fromCurrency}-${toCurrency}`;
-      if (parsedFavorites[fromToPair]) {
-        delete parsedFavorites[fromToPair]; // remove from favorites
-      } else {
-        parsedFavorites[fromToPair] = { from: fromCurrency, to: toCurrency };
-      }
-      newFavorites = parsedFavorites;
-    } else {
-      // if favorites do not exist, create a new object with the current pair
-      newFavorites = { [`${fromCurrency}-${toCurrency}`]: { from: fromCurrency, to: toCurrency } };
-    }
-    await AsyncStorage.setItem('favorites', JSON.stringify(newFavorites));
-    setIsFavorite(!isFavorite);
-  } catch (error) {
-    console.log(error);
-  }
-};
+  //   const addToFavorites = async () => {
+  //     try {
+  //       const jsonValue = await AsyncStorage.getItem("@favorites");
+  //       const favorites = jsonValue != null ? JSON.parse(jsonValue) : [];
+  //       favorites.push({ from: fromCurrency, to: toCurrency });
+  //       await AsyncStorage.setItem("@favorites", JSON.stringify(favorites));
+  //       setIsFavorite(true);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
 
-
+  //   const toggleFavorite = async () => {
+  //   try {
+  //     const favorites = await AsyncStorage.getItem('favorites');
+  //     let newFavorites;
+  //     if (favorites) {
+  //       // if favorites exist, parse the JSON and update it
+  //       const parsedFavorites = JSON.parse(favorites);
+  //       const fromToPair = `${fromCurrency}-${toCurrency}`;
+  //       if (parsedFavorites[fromToPair]) {
+  //         delete parsedFavorites[fromToPair]; // remove from favorites
+  //       } else {
+  //         parsedFavorites[fromToPair] = { from: fromCurrency, to: toCurrency };
+  //       }
+  //       newFavorites = parsedFavorites;
+  //     } else {
+  //       // if favorites do not exist, create a new object with the current pair
+  //       newFavorites = { [`${fromCurrency}-${toCurrency}`]: { from: fromCurrency, to: toCurrency } };
+  //     }
+  //     await AsyncStorage.setItem('favorites', JSON.stringify(newFavorites));
+  //     setIsFavorite(!isFavorite);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   return (
     <View style={styles.container}>
-      <Image source={require('../images/money.png')} style={styles.image} />
+      <Image source={require("../images/money.png")} style={styles.image} />
       <Text style={styles.title}>Currency Converter</Text>
       <TextInput
         style={styles.input}
@@ -114,7 +128,8 @@ const CurrencyExchange = () => {
         <Picker
           style={styles.picker}
           selectedValue={fromCurrency}
-          onValueChange={(itemValue) => setFromCurrency(itemValue)}>
+          onValueChange={(itemValue) => setFromCurrency(itemValue)}
+        >
           {currencies.map((currency, index) => (
             <Picker.Item key={index} label={currency} value={currency} />
           ))}
@@ -123,7 +138,8 @@ const CurrencyExchange = () => {
         <Picker
           style={styles.picker}
           selectedValue={toCurrency}
-          onValueChange={(itemValue) => setToCurrency(itemValue)}>
+          onValueChange={(itemValue) => setToCurrency(itemValue)}
+        >
           {currencies.map((currency, index) => (
             <Picker.Item key={index} label={currency} value={currency} />
           ))}
@@ -132,7 +148,7 @@ const CurrencyExchange = () => {
       <Text style={styles.result}>
         {amount} {fromCurrency} = {convertCurrency()} {toCurrency}
       </Text>
-      <TouchableOpacity
+      {/* <TouchableOpacity
       onPress={toggleFavorite}
       style={[
         styles.favoriteButton,
@@ -142,10 +158,9 @@ const CurrencyExchange = () => {
       <Text style={styles.favoriteButtonText}>
         {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
       </Text>
-    </TouchableOpacity>
+    </TouchableOpacity> */}
     </View>
   );
-
 };
 
 const styles = StyleSheet.create({
