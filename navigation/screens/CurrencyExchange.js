@@ -9,7 +9,10 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { Ionicons } from '@expo/vector-icons';
 import { getData, storeData } from "./store";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const CurrencyExchange = () => {
   const [fromCurrency, setFromCurrency] = useState("USD");
@@ -17,9 +20,53 @@ const CurrencyExchange = () => {
   const [exchangeRate, setExchangeRate] = useState(0);
   const [amount, setAmount] = useState(1);
   const [currencies, setCurrencies] = useState([]);
-  // const [isFavorite, setIsFavorite] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+
+    const toggleBookmark = async () => {
+    if (isBookmarked) {
+      setIsBookmarked(false);
+      try {
+        const storedCurrencies = await AsyncStorage.getItem('watchlist');
+        const currenciesArray = JSON.parse(storedCurrencies);
+        const updatedCurrencies = currenciesArray.filter(
+          (currency) => currency.fromCurrency !== fromCurrency || currency.toCurrency !== toCurrency
+        );
+        await AsyncStorage.setItem('watchlist', JSON.stringify(updatedCurrencies));
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      setIsBookmarked(true);
+      try {
+        const storedCurrencies = await AsyncStorage.getItem('watchlist');
+        const currenciesArray = JSON.parse(storedCurrencies) || [];
+        currenciesArray.push({ fromCurrency, toCurrency, exchangeRate });
+        await AsyncStorage.setItem('watchlist', JSON.stringify(currenciesArray));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const loadWatchlist = async () => {
+    try {
+      const storedCurrencies = await AsyncStorage.getItem('watchlist');
+      const currenciesArray = JSON.parse(storedCurrencies) || [];
+      const bookmarked = currenciesArray.find(
+        (currency) => currency.fromCurrency === fromCurrency && currency.toCurrency === toCurrency
+      );
+      if (bookmarked) {
+        setIsBookmarked(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 
   const convertCurrency = () => {
+    loadWatchlist();
     let result = (amount * exchangeRate).toFixed(2);
     return result;
   };
@@ -42,6 +89,7 @@ const CurrencyExchange = () => {
 
   useEffect(() => {
     const fetchExchangeRate = async () => {
+      setIsBookmarked(false);
       try {
         const response = await fetch(
           `https://v6.exchangerate-api.com/v6/89cc9cc4efde77f6f4a8dadc/latest/${fromCurrency}`
@@ -63,59 +111,10 @@ const CurrencyExchange = () => {
     fetchExchangeRate();
   }, [fromCurrency, toCurrency]);
 
-  //   useEffect(() => {
-  //     const getFavorites = async () => {
-  //       try {
-  //         const jsonValue = await AsyncStorage.getItem("@favorites");
-  //         const favorites = jsonValue != null ? JSON.parse(jsonValue) : [];
-  //         setIsFavorite(favorites.some((fav) => fav.from === fromCurrency && fav.to === toCurrency));
-  //       } catch (error) {
-  //         console.log(error);
-  //       }
-  //     };
-  //     getFavorites();
-  //   }, [fromCurrency, toCurrency]);
-
-  //   const addToFavorites = async () => {
-  //     try {
-  //       const jsonValue = await AsyncStorage.getItem("@favorites");
-  //       const favorites = jsonValue != null ? JSON.parse(jsonValue) : [];
-  //       favorites.push({ from: fromCurrency, to: toCurrency });
-  //       await AsyncStorage.setItem("@favorites", JSON.stringify(favorites));
-  //       setIsFavorite(true);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-
-  //   const toggleFavorite = async () => {
-  //   try {
-  //     const favorites = await AsyncStorage.getItem('favorites');
-  //     let newFavorites;
-  //     if (favorites) {
-  //       // if favorites exist, parse the JSON and update it
-  //       const parsedFavorites = JSON.parse(favorites);
-  //       const fromToPair = `${fromCurrency}-${toCurrency}`;
-  //       if (parsedFavorites[fromToPair]) {
-  //         delete parsedFavorites[fromToPair]; // remove from favorites
-  //       } else {
-  //         parsedFavorites[fromToPair] = { from: fromCurrency, to: toCurrency };
-  //       }
-  //       newFavorites = parsedFavorites;
-  //     } else {
-  //       // if favorites do not exist, create a new object with the current pair
-  //       newFavorites = { [`${fromCurrency}-${toCurrency}`]: { from: fromCurrency, to: toCurrency } };
-  //     }
-  //     await AsyncStorage.setItem('favorites', JSON.stringify(newFavorites));
-  //     setIsFavorite(!isFavorite);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   return (
     <View style={styles.container}>
       <Image source={require("../images/money.png")} style={styles.image} />
+      
       <Text style={styles.title}>Currency Converter</Text>
       <TextInput
         style={styles.input}
@@ -144,21 +143,15 @@ const CurrencyExchange = () => {
             <Picker.Item key={index} label={currency} value={currency} />
           ))}
         </Picker>
+        <View style={styles.bookmarkContainer}>
+      <TouchableOpacity onPress={toggleBookmark}>
+        <Ionicons name={isBookmarked ? 'bookmark' : 'bookmark-outline'} size={30} color="black" />
+      </TouchableOpacity>
+    </View>
       </View>
       <Text style={styles.result}>
         {amount} {fromCurrency} = {convertCurrency()} {toCurrency}
       </Text>
-      {/* <TouchableOpacity
-      onPress={toggleFavorite}
-      style={[
-        styles.favoriteButton,
-        isFavorite && styles.favoriteButtonActive,
-      ]}
-    >
-      <Text style={styles.favoriteButtonText}>
-        {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-      </Text>
-    </TouchableOpacity> */}
     </View>
   );
 };
@@ -170,6 +163,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#dff0e6",
   },
+  bookmarkContainer: {
+    paddingRight: 10,
+  },
+
   title: {
     fontSize: 25,
     fontWeight: "bold",
