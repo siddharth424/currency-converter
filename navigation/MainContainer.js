@@ -9,10 +9,12 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import CurrencyExchange from "./screens/CurrencyExchange";
 import RateChart from "./screens/RateChart";
 import WatchList from "./screens/WatchList";
+import History from "./screens/History";
 
 //Screen names
 const exchangeName = "Currency Exchange";
 const chartName = "Rate Chart";
+const history = "History"
 const watchlistName = "Watchlist";
 
 const Tab = createBottomTabNavigator();
@@ -48,6 +50,8 @@ function MainContainer() {
               iconName = focused ? "bar-chart" : "bar-chart-outline";
             } else if (rn === watchlistName) {
               iconName = focused ? "bookmark" : "bookmark-outline";
+            } else if (rn == history) {
+              iconName = focused ? "timer" : "timer-outline";
             }
 
             // You can return any component that you like here!
@@ -58,6 +62,7 @@ function MainContainer() {
         <Tab.Screen name={exchangeName} component={CurrencyExchange} />
         <Tab.Screen name={chartName} component={RateChart} />
         <Tab.Screen name={watchlistName} component={WatchList} />
+        <Tab.Screen name={history} component={History}/>
       </Tab.Navigator>
       </NavigationContainer>
   );

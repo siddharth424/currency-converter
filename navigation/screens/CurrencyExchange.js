@@ -12,7 +12,7 @@ const CurrencyExchange = () => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const convertCurrency = () => {
-    let result = (amount / exchangeRate).toFixed(2);
+    let result = (amount * exchangeRate).toFixed(2);
     return result;
   };
 
