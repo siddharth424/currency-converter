@@ -16,9 +16,10 @@ This React Native mobile application provides users with the ability to convert 
 
 ## Screenshots
 
-![Screenshot 1](https://chat.openai.com/screenshots/screenshot1.png)
-
-![Screenshot 2](https://chat.openai.com/screenshots/screenshot2.png)
+<p float="center">
+<img src="https://github.com/siddharth424/crime-detection/assets/73775321/852dfbb0-de91-4ee1-8a9f-615cf245cdb4" width="300"/>&emsp;&emsp;
+<img src="https://github.com/siddharth424/currency-converter/assets/73775321/a2684187-4a4f-479e-a801-c75ee5cbbfba" width="300" />
+</p>
 
 ## Installation
 
