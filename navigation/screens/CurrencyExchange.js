@@ -21,6 +21,7 @@ const CurrencyExchange = () => {
   const [amount, setAmount] = useState(1);
   const [currencies, setCurrencies] = useState([]);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [backuplist,setbackuplist] = useState([]);
 
 
     const toggleBookmark = async () => {
@@ -68,7 +69,8 @@ const CurrencyExchange = () => {
 
   const convertCurrency = () => {
     loadWatchlist();
-    let result = (amount * exchangeRate).toFixed(2);
+    let rate = backuplist[toCurrency]/backuplist[fromCurrency]
+    let result = (amount * rate).toFixed(2);
     return result;
   };
 
@@ -92,10 +94,15 @@ const CurrencyExchange = () => {
     const fetchExchangeRate = async () => {
       setIsBookmarked(false);
       try {
+        const converter = await fetch(
+          `https://v6.exchangerate-api.com/v6/89cc9cc4efde77f6f4a8dadc/latest/USD`
+        );
         const response = await fetch(
           `https://v6.exchangerate-api.com/v6/89cc9cc4efde77f6f4a8dadc/latest/${fromCurrency}`
         );
         const data = await response.json();
+        const templist = await converter.json();
+        setbackuplist(templist.conversion_rates);
         setExchangeRate(data.conversion_rates[toCurrency]);
           const history = (await getData("history")) || [];
 
