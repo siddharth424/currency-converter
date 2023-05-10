@@ -7,9 +7,31 @@ import {
   StyleSheet,
 } from "react-native";
 import { getData, removeData } from "./store";
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const WatchList = () => {
   const [watchlist, setWatchlist] = useState([]);
+  const [isBookmarked, setIsBookmarked] = useState(true);
+  const [tempFromCurrency, setTempFromCurrency] = useState("USD");
+  const [tempToCurrency, setTempToCurrency] = useState("EUR");
+
+
+  const toggleBookmark = async () => {
+      try {
+        const storedCurrencies = await AsyncStorage.getItem('watchlist');
+        const currenciesArray = JSON.parse(storedCurrencies);
+        const updatedCurrencies = currenciesArray.filter(
+          (currency) => currency.fromCurrency !== tempFromCurrency || currency.toCurrency !== tempToCurrency
+        );
+        await AsyncStorage.setItem('watchlist', JSON.stringify(updatedCurrencies));
+      } catch (error) {
+        console.log(error);
+      }
+  };
+
+
 
   useEffect(() => {
     const getWatchlist = async () => {
@@ -27,18 +49,28 @@ const WatchList = () => {
 
   const renderWatchlistItem = ({ item }) => {
     const { toCurrency, fromCurrency, exchangeRate } = item;
+    setTempFromCurrency(fromCurrency);
+    setTempToCurrency(toCurrency);
     return (
       <View style={styles.item}>
         <Text style={styles.itemText}>{`From: ${fromCurrency}`}</Text>
         <Text style={styles.itemText}>{`To: ${toCurrency}`}</Text>
         <Text style={styles.itemText}>{`Exchange rate: ${exchangeRate}`}</Text>
+        <View style={styles.bookmarkContainer}>
+          <TouchableOpacity onPress={toggleBookmark}>
+            <Ionicons
+              name={isBookmarked ? "bookmark" : "bookmark-outline"}
+              size={30}
+              color="black"
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
 
   return (
     <View style={styles.container}>
-
       {watchlist.length === 0 ? (
         <Text style={styles.message}>No currencies in watchlist</Text>
       ) : (
@@ -57,6 +89,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
+  },
+  bookmarkContainer: {
+    paddingRight: 10,
   },
   header: {
     fontSize: 24,

@@ -61,6 +61,9 @@ const CurrencyExchange = () => {
       if (bookmarked) {
         setIsBookmarked(true);
       }
+      else {
+        setIsBookmarked(false);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -94,8 +97,18 @@ const CurrencyExchange = () => {
   }, [toCurrency]);
 
   useEffect(() => {
+    const interval = setInterval(loadWatchlist, 1000); // Call loadWatchlist every 5 seconds
+
+    return () => {
+      clearInterval(interval); // Clear the interval when the component unmounts
+    };
+  }, []);
+
+
+  useEffect(() => {
     const fetchExchangeRate = async () => {
-      setIsBookmarked(false);
+      loadWatchlist();
+      //setIsBookmarked(false);
       try {
         const converter = await fetch(
           `https://v6.exchangerate-api.com/v6/89cc9cc4efde77f6f4a8dadc/latest/USD`
@@ -122,7 +135,7 @@ const CurrencyExchange = () => {
     fetchExchangeRate();
   }, [fromCurrency, toCurrency]);
 
-    useEffect(() => {
+  useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsOnline(state.isConnected);
     });
@@ -189,7 +202,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#dff0e6",
-  },statusContainer: {
+  },
+  statusContainer: {
     position: "absolute",
     top: 10,
     right: 10,
