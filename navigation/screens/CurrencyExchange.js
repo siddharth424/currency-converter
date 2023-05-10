@@ -5,13 +5,13 @@ import {
   StyleSheet,
   TextInput,
   Image,
-  Button,
   TouchableOpacity,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from '@expo/vector-icons';
 import { getData, storeData } from "./store";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from "@react-native-community/netinfo";
 
 
 const CurrencyExchange = () => {
@@ -22,7 +22,7 @@ const CurrencyExchange = () => {
   const [currencies, setCurrencies] = useState([]);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [backuplist,setbackuplist] = useState([]);
-
+  const [isOnline, setIsOnline] = useState(true);
 
     const toggleBookmark = async () => {
     if (isBookmarked) {
@@ -77,6 +77,9 @@ const CurrencyExchange = () => {
   useEffect(() => {
     const fetchCurrencies = async () => {
       try {
+        const isConnected = await NetInfo.fetch().then((state) => state.isConnected);
+        setIsOnline(isConnected);
+
         const response = await fetch(
           `https://v6.exchangerate-api.com/v6/89cc9cc4efde77f6f4a8dadc/latest/USD`
         );
@@ -119,8 +122,24 @@ const CurrencyExchange = () => {
     fetchExchangeRate();
   }, [fromCurrency, toCurrency]);
 
+    useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsOnline(state.isConnected);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+
   return (
     <View style={styles.container}>
+      <View style={styles.statusContainer}>
+        <Text style={isOnline ? styles.onlineText : styles.offlineText}>
+          {isOnline ? "Online" : "Offline"}
+        </Text>
+      </View>
       <Image source={require("../images/money.png")} style={styles.image} />
       
       <Text style={styles.title}>Currency Converter</Text>
@@ -170,6 +189,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#dff0e6",
+  },statusContainer: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    padding: 5,
+    borderRadius: 5,
+    backgroundColor: "#ffffff",
+  },
+  onlineText: {
+    color: "#008000",
+    fontWeight: "bold",
+  },
+  offlineText: {
+    color: "#ff0000",
+    fontWeight: "bold",
   },
   bookmarkContainer: {
     paddingRight: 10,
