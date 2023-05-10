@@ -11,7 +11,7 @@ import { getData, removeData } from "./store";
 const History = () => {
   const [history, setHistory] = useState([]);
 
-  useEffect(() => {
+
     const getHistory = async () => {
       try {
         const storedHistory = await getData("history");
@@ -25,8 +25,14 @@ const History = () => {
         console.log("Error getting history:", error);
       }
     };
-    getHistory();
-  }, [history]);
+
+  useEffect(() => {
+    const interval = setInterval(getHistory, 100); // Call loadWatchlist every 5 seconds
+
+    return () => {
+      clearInterval(interval); // Clear the interval when the component unmounts
+    };
+  }, []);
 
   const clearHistory = async () => {
     try {

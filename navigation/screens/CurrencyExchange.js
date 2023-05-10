@@ -8,11 +8,10 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 import { getData, storeData } from "./store";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
-
 
 const CurrencyExchange = () => {
   const [fromCurrency, setFromCurrency] = useState("USD");
@@ -21,58 +20,66 @@ const CurrencyExchange = () => {
   const [amount, setAmount] = useState(1);
   const [currencies, setCurrencies] = useState([]);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [backuplist,setbackuplist] = useState([]);
+  const [backuplist, setbackuplist] = useState([]);
   const [isOnline, setIsOnline] = useState(true);
+  
 
-    const toggleBookmark = async () => {
+  const toggleBookmark = async () => {
     if (isBookmarked) {
       try {
-        const storedCurrencies = await AsyncStorage.getItem('watchlist');
+        const storedCurrencies = await AsyncStorage.getItem("watchlist");
         const currenciesArray = JSON.parse(storedCurrencies);
         const updatedCurrencies = currenciesArray.filter(
-          (currency) => currency.fromCurrency !== fromCurrency || currency.toCurrency !== toCurrency
+          (currency) =>
+            currency.fromCurrency !== fromCurrency ||
+            currency.toCurrency !== toCurrency
         );
-        await AsyncStorage.setItem('watchlist', JSON.stringify(updatedCurrencies));
+        await AsyncStorage.setItem(
+          "watchlist",
+          JSON.stringify(updatedCurrencies)
+        );
         setIsBookmarked(false);
       } catch (error) {
         console.log(error);
       }
     } else {
       try {
-        const storedCurrencies = await AsyncStorage.getItem('watchlist');
+        const storedCurrencies = await AsyncStorage.getItem("watchlist");
         const currenciesArray = JSON.parse(storedCurrencies) || [];
         currenciesArray.push({ fromCurrency, toCurrency, exchangeRate });
-        await AsyncStorage.setItem('watchlist', JSON.stringify(currenciesArray));
-        setIsBookmarked(false);
+        await AsyncStorage.setItem(
+          "watchlist",
+          JSON.stringify(currenciesArray)
+        );
+        setIsBookmarked(true);
       } catch (error) {
         console.log(error);
       }
     }
-      loadWatchlist();
   };
 
   const loadWatchlist = async () => {
     try {
-      const storedCurrencies = await AsyncStorage.getItem('watchlist');
+      const storedCurrencies = await AsyncStorage.getItem("watchlist");
       const currenciesArray = JSON.parse(storedCurrencies) || [];
       const bookmarked = currenciesArray.find(
-        (currency) => currency.fromCurrency === fromCurrency && currency.toCurrency === toCurrency
+        (currency) =>
+          currency.fromCurrency === fromCurrency &&
+          currency.toCurrency === toCurrency
       );
       if (bookmarked) {
         setIsBookmarked(true);
-      }
-      else {
+      } else {
         setIsBookmarked(false);
       }
     } catch (error) {
       console.log(error);
     }
   };
-
+  
 
   const convertCurrency = () => {
-    loadWatchlist();
-    let rate = backuplist[toCurrency]/backuplist[fromCurrency]
+    let rate = backuplist[toCurrency] / backuplist[fromCurrency];
     let result = (amount * rate).toFixed(2);
     return result;
   };
@@ -80,7 +87,9 @@ const CurrencyExchange = () => {
   useEffect(() => {
     const fetchCurrencies = async () => {
       try {
-        const isConnected = await NetInfo.fetch().then((state) => state.isConnected);
+        const isConnected = await NetInfo.fetch().then(
+          (state) => state.isConnected
+        );
         setIsOnline(isConnected);
 
         const response = await fetch(
@@ -97,18 +106,8 @@ const CurrencyExchange = () => {
   }, [toCurrency]);
 
   useEffect(() => {
-    const interval = setInterval(loadWatchlist, 1000); // Call loadWatchlist every 5 seconds
-
-    return () => {
-      clearInterval(interval); // Clear the interval when the component unmounts
-    };
-  }, []);
-
-
-  useEffect(() => {
     const fetchExchangeRate = async () => {
       loadWatchlist();
-      //setIsBookmarked(false);
       try {
         const converter = await fetch(
           `https://v6.exchangerate-api.com/v6/89cc9cc4efde77f6f4a8dadc/latest/USD`
@@ -120,14 +119,14 @@ const CurrencyExchange = () => {
         const templist = await converter.json();
         setbackuplist(templist.conversion_rates);
         setExchangeRate(data.conversion_rates[toCurrency]);
-          const history = (await getData("history")) || [];
+        const history = (await getData("history")) || [];
 
-          // Append the current conversion data to the history array
+        // Append the current conversion data to the history array
 
-          history.push({ fromCurrency, toCurrency, exchangeRate });
+        history.push({ fromCurrency, toCurrency, exchangeRate });
 
-          // Save the updated history array back to AsyncStorage
-          storeData("history", history);
+        // Save the updated history array back to AsyncStorage
+        storeData("history", history);
       } catch (error) {
         console.log(error);
       }
@@ -145,7 +144,6 @@ const CurrencyExchange = () => {
     };
   }, []);
 
-
   return (
     <View style={styles.container}>
       <View style={styles.statusContainer}>
@@ -154,7 +152,7 @@ const CurrencyExchange = () => {
         </Text>
       </View>
       <Image source={require("../images/money.png")} style={styles.image} />
-      
+
       <Text style={styles.title}>Currency Converter</Text>
       <TextInput
         style={styles.input}
@@ -184,10 +182,14 @@ const CurrencyExchange = () => {
           ))}
         </Picker>
         <View style={styles.bookmarkContainer}>
-      <TouchableOpacity onPress={toggleBookmark}>
-        <Ionicons name={isBookmarked ? 'bookmark' : 'bookmark-outline'} size={30} color="black" />
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity onPress={toggleBookmark}>
+            <Ionicons
+              name={isBookmarked ? "bookmark" : "bookmark-outline"}
+              size={30}
+              color="black"
+            />
+          </TouchableOpacity>
+        </View>
       </View>
       <Text style={styles.result}>
         {amount} {fromCurrency} = {convertCurrency()} {toCurrency}

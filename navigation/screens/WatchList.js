@@ -6,32 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { getData, removeData } from "./store";
-import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { getData } from "./store";
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const WatchList = () => {
   const [watchlist, setWatchlist] = useState([]);
-  const [isBookmarked, setIsBookmarked] = useState(true);
-  const [tempFromCurrency, setTempFromCurrency] = useState("USD");
-  const [tempToCurrency, setTempToCurrency] = useState("EUR");
-
-
-  const toggleBookmark = async () => {
-      try {
-        const storedCurrencies = await AsyncStorage.getItem('watchlist');
-        const currenciesArray = JSON.parse(storedCurrencies);
-        const updatedCurrencies = currenciesArray.filter(
-          (currency) => currency.fromCurrency !== tempFromCurrency || currency.toCurrency !== tempToCurrency
-        );
-        await AsyncStorage.setItem('watchlist', JSON.stringify(updatedCurrencies));
-      } catch (error) {
-        console.log(error);
-      }
-  };
-
-
 
   useEffect(() => {
     const getWatchlist = async () => {
@@ -45,27 +25,40 @@ const WatchList = () => {
       }
     };
     getWatchlist();
+    //console.log(watchlist);
   }, [watchlist]);
 
   const renderWatchlistItem = ({ item }) => {
     const { toCurrency, fromCurrency, exchangeRate } = item;
-    setTempFromCurrency(fromCurrency);
-    setTempToCurrency(toCurrency);
+    const toggleBookmark = async () => {
+      try {
+        const storedCurrencies = await AsyncStorage.getItem("watchlist");
+        const currenciesArray = JSON.parse(storedCurrencies);
+        const updatedCurrencies = currenciesArray.filter(
+          (currency) =>
+            currency.fromCurrency !== fromCurrency ||
+            currency.toCurrency !== toCurrency
+        );
+        await AsyncStorage.setItem(
+          "watchlist",
+          JSON.stringify(updatedCurrencies)
+        );
+        
+      } catch (error) {
+        console.log(error);
+      } 
+    };
     return (
-      <View style={styles.item}>
+      <TouchableOpacity>
         <Text style={styles.itemText}>{`From: ${fromCurrency}`}</Text>
         <Text style={styles.itemText}>{`To: ${toCurrency}`}</Text>
         <Text style={styles.itemText}>{`Exchange rate: ${exchangeRate}`}</Text>
         <View style={styles.bookmarkContainer}>
           <TouchableOpacity onPress={toggleBookmark}>
-            <Ionicons
-              name={isBookmarked ? "bookmark" : "bookmark-outline"}
-              size={30}
-              color="black"
-            />
+            <Ionicons name="bookmark" size={30} color="black" />
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
