@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getData, storeData } from "./store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
+import { API_KEY_EXCHANGE } from '@env';
 
 const CurrencyExchange = () => {
   const [fromCurrency, setFromCurrency] = useState("USD"); // State for the selected "from" currency
@@ -107,7 +108,7 @@ const CurrencyExchange = () => {
 
         // Fetch the exchange rate data for USD
         const response = await fetch(
-          `https://v6.exchangerate-api.com/v6/89cc9cc4efde77f6f4a8dadc/latest/USD`
+          `https://v6.exchangerate-api.com/v6/${API_KEY_EXCHANGE}/latest/USD`
         );
         const data = await response.json();
 
@@ -130,12 +131,12 @@ const CurrencyExchange = () => {
 
       try {
         const converter = await fetch(
-          `https://v6.exchangerate-api.com/v6/89cc9cc4efde77f6f4a8dadc/latest/USD`
+          `https://v6.exchangerate-api.com/v6/${API_KEY_EXCHANGE}/latest/USD`
         );
 
         // Fetch the exchange rate for the selected "from" currency
         const response = await fetch(
-          `https://v6.exchangerate-api.com/v6/89cc9cc4efde77f6f4a8dadc/latest/${fromCurrency}`
+          `https://v6.exchangerate-api.com/v6/${API_KEY_EXCHANGE}/latest/${fromCurrency}`
         );
         const data = await response.json();
         const templist = await converter.json();

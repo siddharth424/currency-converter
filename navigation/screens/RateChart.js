@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Picker } from "@react-native-picker/picker";
+import { API_KEY_RATECHART } from '@env';
 
 const chartConfig = {
   backgroundColor: "#fff",
@@ -40,7 +41,7 @@ const RateChart = () => {
     fetchData();
   }, [fromCurrency, toCurrency]);
 
-  const API_KEY = "sijS33zhah9vw0qputVWlcI75afUF1Q7";
+  const API_KEY = API_KEY_RATECHART;
   // Define the start and end dates for fetching exchange rate data
   const startDate = "2023-01-01";
   const endDate = "2023-01-31";
