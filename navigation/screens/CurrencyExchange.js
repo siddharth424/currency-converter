@@ -85,7 +85,9 @@ const CurrencyExchange = () => {
   const convertCurrency = () => {
     let rate = backuplist[toCurrency] / backuplist[fromCurrency];
     if (isNaN(amount)) {
-      setAmount(1);
+
+      let result = (rate).toFixed(4);
+      return result;
     }
     if (isNaN(rate))
     {
@@ -108,6 +110,7 @@ const CurrencyExchange = () => {
 
         // Fetch the exchange rate data for USD
         const response = await fetch(
+          
           `https://v6.exchangerate-api.com/v6/${API_KEY_EXCHANGE}/latest/USD`
         );
         const data = await response.json();

@@ -1,9 +1,10 @@
 import * as React from 'react';
 import MainContainer from './navigation/MainContainer';
-console.disableYellowBox = true;
+import { LogBox } from 'react-native'
 
 
 function App() {
+  LogBox.ignoreAllLogs();
   return (
     <MainContainer/>
   );
