@@ -3,15 +3,20 @@
 
 This React Native mobile application provides users with the ability to convert between various currencies. Even lesser-known currencies such as the Armenian dram and Iranian Rial can be converted using this app. The app has a simple and easy-to-use user interface, making it easy for users to navigate and use its features.
 
+
 ## Features
 
--   **Exchange Rates**: Users can easily get the exchange rate of one currency to another. The app uses up-to-date and accurate exchange rates to provide users with reliable information.
+The Currency Converter Mobile App comes with the following features:
+
+-   **Exchange rates**: Users can quickly and easily get the exchange rates of one currency to another. This includes conversion rates for less commonly known currencies, such as the Armenian dram and Iranian Rial.
     
--   **Exchange Rate Chart**: The app provides an exchange rate chart between the two selected currencies. This helps users to understand the exchange rates over time and make informed decisions.
+-   **Exchange rate chart**: Users can view a chart that shows the exchange rate history between two currencies. This allows users to see how the exchange rate has changed over time, and make informed decisions about currency conversion.
     
--   **History**: The app saves the user's conversion history, allowing them to quickly and easily access their previous conversions.
+-   **Offline mode**: Even when the user is not online, the app will still work. The last live data that was available when the user was online will be used to provide accurate exchange rates.
     
--   **Watchlist**: Users can add their favorite currency pairs to a watchlist, making it easier for them to keep track of their preferred currencies.
+-   **History page**: The app keeps track of the user's conversion history, so they can easily see the currencies they've converted in the past. The user can also clear their history if they wish.
+    
+-   **Watchlist**: The user can save their favorite currency pairs to a watchlist. This allows them to quickly check the exchange rate between those two currencies without having to enter them again.
     
 
 ## Screenshots
@@ -39,13 +44,4 @@ To use the app, follow these steps:
 4.  Click on the "Convert" button to see the converted amount.
 5.  Use the other features such as the exchange rate chart, history, and watchlist as desired.
 
-## Contributing
-
-If you would like to contribute to this app, please follow these steps:
-
-1.  Fork the repository.
-2.  Create a new branch for your feature.
-3.  Make your changes and commit them to your branch.
-4.  Push your changes to your forked repository.
-5.  Submit a pull request to this repository.
 
