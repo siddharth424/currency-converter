@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ActivityIndicator,Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  Dimensions,
+} from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Picker } from "@react-native-picker/picker";
 
@@ -8,22 +14,19 @@ const chartConfig = {
   backgroundGradientFrom: "#fff",
   backgroundGradientTo: "#fff",
   decimalPlaces: 4,
-  color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
+  color: (opacity = 10) => `rgba(0, 0, 0, ${opacity})`, // Adjust the RGB values for a darker shade
+
   labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   style: {
     borderRadius: 16,
+    strokeWidth: 0.2, // Adjust the thickness of the background lines
   },
+
   propsForDots: {
-    r: "6",
+    r: "0",
     strokeWidth: "2",
     stroke: "#ffa726",
   },
-  xAxisLabel: {
-    fontSize: 2,
-    marginVertical: 4,
-  },
-
-
 };
 
 const RateChart = () => {
@@ -38,12 +41,14 @@ const RateChart = () => {
   }, [fromCurrency, toCurrency]);
 
   const API_KEY = "sijS33zhah9vw0qputVWlcI75afUF1Q7";
-  const startDate = "2022-01-01";
-  const endDate = "2022-01-31";
+  // Define the start and end dates for fetching exchange rate data
+  const startDate = "2023-01-01";
+  const endDate = "2023-01-31";
 
+  // Fetch the list of available currencies
   const fetchCurrencies = async () => {
     const response = await fetch(
-      `https://api.apilayer.com/fixer/symbols?apikey=${API_KEY}`
+      `https://api.apilayer.com/exchangerates_data/symbols?apikey=${API_KEY}`
     );
     const result = await response.json();
     const currencyNames = Object.keys(result.symbols);
@@ -54,16 +59,17 @@ const RateChart = () => {
     fetchCurrencies();
   }, []);
 
+  // Fetch the exchange rate data based on the selected currencies and dates
   const fetchData = async () => {
-    //https://api.apilayer.com/fixer/timeseries?start_date=2022-01-01&end_date=2022-01-10&base=EUR&symbols=USD&apikey=sijS33zhah9vw0qputVWlcI75afUF1Q7
     const response = await fetch(
-      `https://api.apilayer.com/fixer/timeseries?start_date=${startDate}&end_date=${endDate}&base=${fromCurrency}&symbols=${toCurrency}&apikey=${API_KEY}`
+      `https://api.apilayer.com/exchangerates_data/timeseries?start_date=${startDate}&end_date=${endDate}&base=${fromCurrency}&symbols=${toCurrency}&apikey=${API_KEY}`
     );
 
     const result = await response.json();
     setExchangeRates(result.rates);
   };
 
+  // Calculate the exchange rates for the chart data
   const calculateExchangeRates = () => {
     const data = [];
 
@@ -77,6 +83,7 @@ const RateChart = () => {
     return data;
   };
 
+  // Show loading indicator while fetching exchange rates
   if (!exchangeRates) {
     return (
       <View style={styles.container}>
@@ -90,6 +97,7 @@ const RateChart = () => {
   return (
     <View style={styles.container}>
       <View style={styles.pickerContainer}>
+        {/* Currency selection pickers */}
         <Picker
           style={styles.picker}
           selectedValue={fromCurrency}
@@ -110,21 +118,28 @@ const RateChart = () => {
           ))}
         </Picker>
       </View>
+
+      {/* Line chart displaying exchange rate data */}
       <LineChart
         data={{
-          labels: chartData.map((data) => data.date),
           datasets: [
             {
               data: chartData.map((data) => data.rate),
             },
           ],
         }}
-        width={Dimensions.get("window").width - 40} 
+        width={Dimensions.get("window").width - 40}
         height={300}
         chartConfig={chartConfig}
-        verticalLabelRotation={45}
-
       />
+
+      <View style={styles.descriptionContainer}>
+        <View style={styles.descriptionBorder} />
+        <Text style={styles.description}>
+          The graph shows the value of {fromCurrency} with respect to{" "}
+          {toCurrency} in the last month
+        </Text>
+      </View>
     </View>
   );
 };
@@ -134,18 +149,32 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F5FCFF",
+    backgroundColor: "#dff0e6",
   },
   pickerContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 150,
+    marginBottom: 75,
   },
   picker: {
     flex: 1,
     height: 50,
     marginHorizontal: 10,
+  },
+  descriptionContainer: {
+    alignItems: "center",
+    margin: 50,
+  },
+  descriptionBorder: {
+    width: "80%",
+    borderBottomWidth: 1,
+    borderBottomColor: "#000",
+  },
+  description: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 10,
   },
 });
 
