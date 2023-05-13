@@ -22,8 +22,10 @@ The Currency Converter Mobile App comes with the following features:
 ## Screenshots
 
 <p float="center">
-<img src="https://github.com/siddharth424/crime-detection/assets/73775321/852dfbb0-de91-4ee1-8a9f-615cf245cdb4" width="300"/>&emsp;&emsp;
-<img src="https://github.com/siddharth424/currency-converter/assets/73775321/a2684187-4a4f-479e-a801-c75ee5cbbfba" width="300" />
+<img src="https://github.com/siddharth424/currency-converter/assets/73775321/dde44c85-4c66-4e71-91e8-e42e9cbdfcbb" width="250"/>&emsp;
+<img src="https://github.com/siddharth424/currency-converter/assets/73775321/74b67c27-72d8-4398-bd71-352af38d1577" width="250"/>&emsp;
+<img src="https://github.com/siddharth424/currency-converter/assets/73775321/d554e882-58a9-4e6d-8113-8d721eeeb303" width="250"/>&emsp;
+<img src="https://github.com/siddharth424/currency-converter/assets/73775321/688116bb-d7c5-405a-84c9-c0588b6bd70b" width="250" />
 </p>
 
 ## Installation
